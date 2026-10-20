@@ -11,12 +11,15 @@ import cloudsImg from "./assets/clouds.webp";
 import { experience, person, works, type Work } from "./data";
 import { N, pose } from "./pose";
 
-// Wide banners crop badly to 9:16, so the wheel deals the portrait artwork.
-const reel: Work[] = [
-  ...works.filter((w) => !w.wide),
-  { title: `About ${person.name}`, category: "Portrait", client: person.title, year: "", cover: person.portrait, href: "#about" },
-];
+// Posters, banners and the portrait interleaved, so neighbours never share artwork.
+// Wide banners sit on a blurred copy of themselves to fill the 9:16 card.
+const posters = works.filter((w) => !w.wide);
+const banners = works.filter((w) => w.wide);
+const portraitCard: Work = { title: `About ${person.name}`, category: "Portrait", client: person.title, year: "", cover: person.portrait, href: "#about" };
+const reel: Work[] = posters.flatMap((p, i) => [p, ...(i === 2 ? [portraitCard] : []), ...(banners[i] ? [banners[i]] : [])]);
 const cards = Array.from({ length: N }, (_, i) => reel[i % reel.length]);
+// N is not a multiple of the reel, so the last card would match card 0 across the seam.
+if (cards[N - 1] === cards[0]) cards[N - 1] = reel[Math.floor(reel.length / 2)];
 const assets = [...reel.map((w) => w.cover), skyImg, cloudsImg];
 const LIFT_EASE = [0.5, 0, 0.15, 1] as const;
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -334,7 +337,8 @@ export default function Hero() {
               style={{ visibility: "hidden" }}
             >
               <span className="face front">
-                <img src={w.cover} alt="" draggable={false} />
+                {w.wide && <img className="fill" src={w.cover} alt="" draggable={false} />}
+                <img className={w.wide ? "wide" : undefined} src={w.cover} alt="" draggable={false} />
                 {w.video && (
                   <video
                     ref={(el) => void (slots.current[i].video = el)}
