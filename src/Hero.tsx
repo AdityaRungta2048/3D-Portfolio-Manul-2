@@ -163,7 +163,7 @@ export default function Hero() {
   useEffect(() => {
     const el = frame.current!;
     const ro = new ResizeObserver(() => {
-      fit.current = Math.min(el.clientHeight / 1180, el.clientWidth / 560);
+      fit.current = Math.min(el.clientHeight / 1180, el.clientWidth / 700);
       size.current = { w: el.clientWidth, h: el.clientHeight };
     });
     ro.observe(el);
@@ -386,7 +386,7 @@ export default function Hero() {
               ))}
               {/* The typed full stop gives way to the surname. */}
               <motion.span
-                className="dot"
+                className="mark-dot"
                 initial={false}
                 animate={copy ? { opacity: 0, width: 0 } : { opacity: 1, width: "auto" }}
                 transition={fade()}
